@@ -1,0 +1,107 @@
+'''
+Python Decouple is a great library that helps you strictly separate the settings 
+parameters from your source code. The idea is simple: 
+
+# Parameters related to the **project**,goes straight to the source code. 
+# Parameters related to an **instance** of the project, goes to an environment file.
+'''
+
+For example :-
+Django app settings: 
+database url
+password
+secret key
+debug status
+email host
+allowed hosts.
+
+# Installation of the library
+$ pip install python-decouple
+
+Usage :-
+
+if we are working in a django project we have settings.py  which consists of
+the project related settings. some of them need not be exposed to the user.
+
+settings.py file
+'''
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SECRET_KEY = '3izb^ryglj(bvrjb2_y1fZvcnbky#358_l6-nn#i8fkug4mmz!'
+DEBUG = True
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'HELLO_DJANGO',
+        'USER': 'U_HELLO',
+        'PASSWORD': 'hA8(scA@!fg3*sc&xaGh&6%-l<._&xCf',
+        'HOST': '127.0.0.1',
+        'PORT': '',
+    }
+}
+'''
+
+So we create a seperate .env file where we can stored all the sensitive data.
+and database settings and add it to the .gitignore file so when we push it to
+github, so that it is not exposed to the user.
+
+.env file
+'''
+SECRET_KEY=3izb^ryglj(bvrjb2_y1fZvcnbky#358_l6-nn#i8fkug4mmz!
+DEBUG=True
+DB_NAME=HELLO_DJANGO
+DB_USER=U_HELLO
+DB_PASSWORD=hA8(scA@!fg3*sc&xaGh&6%-l<._&xCf
+DB_HOST=127.0.0.1
+'''
+
+
+Now we can use the decouple library to get the values from the .env file.
+to settings.py file
+
+settings.py file
+'''import os
+from decouple import config
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', cast=bool)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': '',
+    }
+}
+'''
+Now the project settings will not get exposed to the user
+
+
+Casting in decouple
+---------------------
+if we want to cast the value to a particular type we can use the cast parameter.
+suppose if the settings expects a boolean value but we got a string value
+then we can use the cast parameter to cast the value to a boolean value.
+
+**Note**:
+the cast argument can receive any callable, but the callable must accept a single argument.
+
+
+Example :-
+DEBUG = config('DEBUG', cast=bool)
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+
+
+Using Default values in decouple
+
+suppose if the settings that we are expecting from the .env file is not present in the .env
+file then we can use the default parameter to set a default value.
+
+
+Example :-
+
+DEBUG = config('DEBUG', default=True, cast=bool)
